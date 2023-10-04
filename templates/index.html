@@ -26,7 +26,8 @@
   <script src="https://www.gstatic.com/firebasejs/7.18/firebase-auth.js"></script>
   <script src="/config.js"></script>
   <script src="/firebase.js"></script>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐱</text></svg>">
+  <script src="/recording.js"></script>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧑‍🏫</text></svg>">
 </head>
 <body class="yellow lighten-5">
   <nav class="teal darken-3">
@@ -57,6 +58,9 @@
       </div>
     </div>
     <h4 class="header center">Recent Votes</h4>
+    <div class="row center">
+      <button class="btn" id="askMisterKnowitall">Ask Mister Know-it-all</button>
+    </div>
     <ul class="container collection center" >
       {% for vote in recent_votes %}
       <li class="collection-item avatar">
@@ -75,6 +79,9 @@
       vote("DOGS");
     });
     document.getElementById('signInButton').addEventListener("click", toggle);
+    document.getElementById('askMisterKnowitall').addEventListener("click", function() {
+      askMisterKnowitall();
+    })
   </script>
 </body>
 </html>

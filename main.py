@@ -65,6 +65,7 @@ def index() -> str:
 def save_vote() -> Response:
     """Save a vote into the database."""
     # Get the team and time the vote was cast.
+    print(request)
     team = request.form["team"]
     uid = request.uid
     time_cast = datetime.datetime.now(tz=datetime.timezone.utc)
