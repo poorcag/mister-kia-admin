@@ -1,0 +1,4 @@
+.env
+postgres-secrets.json
+static/config.js
+*__pycache__
