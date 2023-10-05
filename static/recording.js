@@ -45,28 +45,36 @@ async function handleFinishRecording() {
     const url = URL.createObjectURL(blob);
     console.log(url);
 
+    console.log(chunks)
+
     const formData = new FormData()
     formData.append("audio_file", blob)
     formData.append('chat_context', JSON.stringify(chatContext));
 
     try {
         const token = await firebase.auth().currentUser.getIdToken();
-        const response = await fetch('/', {
+        const response = await fetch('/ask/', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
                 Authorization: `Bearer ${token}`,
             },
             body: formData,
         });
         if (response.ok) {
-            const text = await response.text();
-            window.alert(text);
-            window.location.reload();
+            const blob = await response.blob();
+            const objectURL = URL.createObjectURL(blob);
+            const audioElement = new Audio();
+            audioElement.addEventListener("ended", () => { setButtonState(rec_state.AWAITING); }, false);
+            audioElement.src = objectURL;
+            audioElement.play();
+        }
+        else {
+            setButtonState(rec_state.AWAITING);
         }
     } catch (err) {
-        console.log(`Error when submitting vote: ${err}`);
+        console.log(`Error when finishing recording: ${err}`);
         window.alert('Something went wrong... Please try again!');
+        setButtonState(rec_state.AWAITING);
     }
 }
 
@@ -79,7 +87,7 @@ async function startRecording() {
         mediaRecorder = new MediaRecorder(stream);
         mediaRecorder.ondataavailable = e => chunks.push(e.data);
         mediaRecorder.onstop = handleFinishRecording
-        
+        mediaRecorder.start();
     } else {
         window.alert('User not signed in.');
     }

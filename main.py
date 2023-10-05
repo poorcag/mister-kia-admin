@@ -15,6 +15,7 @@
 import datetime
 import signal
 import sys
+import json
 from types import FrameType
 
 from flask import Flask, render_template, request, Response
@@ -24,6 +25,8 @@ import middleware
 from middleware import jwt_authenticated, logger
 
 app = Flask(__name__, static_folder="static", static_url_path="")
+
+app.config['MAX_CONTENT_PATH'] = 16 * 1024 * 1024 # 16mb should be heaps right?
 
 
 @app.before_first_request
@@ -59,13 +62,31 @@ def index() -> str:
     context["lead_team"] = lead_team
     return render_template("index.html", **context)
 
+@app.route("/ask/", methods=["POST"])
+@jwt_authenticated
+def ask_question() -> Response:
+    f = request.files['audio_file']
+
+    logger.info(f)
+    logger.info(request.form)
+
+    print(f.filename)
+
+    chat_context = request.form['chat_context']
+    user_context = json.loads(chat_context)
+
+    logger.info(user_context)
+
+    return Response(
+        status=200,
+        response="yeah we did it!"
+    )
 
 @app.route("/", methods=["POST"])
 @jwt_authenticated
 def save_vote() -> Response:
     """Save a vote into the database."""
     # Get the team and time the vote was cast.
-    print(request)
     team = request.form["team"]
     uid = request.uid
     time_cast = datetime.datetime.now(tz=datetime.timezone.utc)
