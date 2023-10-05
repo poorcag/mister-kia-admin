@@ -46,10 +46,18 @@ def get_cred_config() -> dict[str, str]:
         if "CLOUD_SQL_CONNECTION_NAME" not in os.environ:
             raise Exception("CLOUD_SQL_CONNECTION_NAME needs to be set.")
 
+        if "ELEVEN_API_KEY" not in os.environ:
+            raise Exception("ELEVEN_API_KEY needs to be set.")
+
+        if "OPENAI_API_KEY" not in os.environ:
+            raise Exception("OPENAI_API_KEY needs to be set.")
+
         return {
             "DB_USER": os.environ["DB_USER"],
             "DB_PASSWORD": os.environ["DB_PASSWORD"],
             "DB_NAME": os.environ["DB_NAME"],
             "DB_HOST": os.environ.get("DB_HOST", None),
+            "ELEVEN_API_KEY": os.environ["ELEVEN_API_KEY"],
+            "OPENAI_API_KEY": os.environ["OPENAI_API_KEY"],
             "CLOUD_SQL_CONNECTION_NAME": os.environ["CLOUD_SQL_CONNECTION_NAME"],
         }

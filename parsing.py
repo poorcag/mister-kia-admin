@@ -1,19 +1,21 @@
-import os
+
 import openai
 from elevenlabs import set_api_key, generate
 
 from middleware import logger
 
+from credentials import get_cred_config
+
 def check_auth_keys():
-    eleven_key = os.environ.get("ELEVEN_API_KEY")
-    if eleven_key:
-        set_api_key(eleven_key)
+    creds = get_cred_config()
+    
+    if "ELEVEN_API_KEY" in creds:
+        set_api_key(creds.get("ELEVEN_API_KEY"))
     else:
         logger.warning("eleven api key not found")
 
-    openai_api_key = os.environ.get("OPENAI_API_KEY")
-    if openai_api_key:
-        openai.api_key = openai_api_key
+    if "OPENAI_API_KEY" in creds:
+        openai.api_key = creds.get("OPENAI_API_KEY")
     else:
         logger.warning("openai api key not found")
 
