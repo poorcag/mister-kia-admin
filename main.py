@@ -24,6 +24,8 @@ import database
 import middleware
 from middleware import jwt_authenticated, logger
 
+from parsing import transcribe_from_audio, check_auth_keys, answer_my_question, text_to_speech
+
 app = Flask(__name__, static_folder="static", static_url_path="")
 
 app.config['MAX_CONTENT_PATH'] = 16 * 1024 * 1024 # 16mb should be heaps right?
@@ -33,6 +35,8 @@ app.config['MAX_CONTENT_PATH'] = 16 * 1024 * 1024 # 16mb should be heaps right?
 def create_table() -> None:
     """Initialize database connection and table on startup."""
     database.create_tables()
+    """Ensure auth keys are set"""
+    check_auth_keys()
 
 
 @app.route("/", methods=["GET"])
@@ -65,21 +69,39 @@ def index() -> str:
 @app.route("/ask/", methods=["POST"])
 @jwt_authenticated
 def ask_question() -> Response:
-    f = request.files['audio_file']
+    audio_file = request.files['audio_file']
 
-    logger.info(f)
+    logger.info(audio_file)
     logger.info(request.form)
-
-    print(f.filename)
 
     chat_context = request.form['chat_context']
     user_context = json.loads(chat_context)
 
+    transcript = transcribe_from_audio(audio_file)
+
+    answer = answer_my_question(transcript, user_context)
+
+    # answer_audio = text_to_speech(answer)
+
+    with open("static/mp3/hmm,_let_me_think.mp3", 'rb') as f:
+        answer_audio = f.read()
+
     logger.info(user_context)
+    logger.info(answer)
+
+    response_header = {
+        "Content-Disposition": f"attachment; filename={audio_file.filename}",
+        "filename": audio_file.filename,
+        "transcription": transcript,
+        "answer": answer,
+        "file_size": str(len(answer_audio))
+    }
 
     return Response(
+        response=answer_audio,
         status=200,
-        response="yeah we did it!"
+        content_type="audio/mp3",
+        headers=response_header
     )
 
 @app.route("/", methods=["POST"])

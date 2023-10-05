@@ -67,6 +67,7 @@ async function handleFinishRecording() {
             audioElement.addEventListener("ended", () => { setButtonState(rec_state.AWAITING); }, false);
             audioElement.src = objectURL;
             audioElement.play();
+            console.log(audioElement)
         }
         else {
             setButtonState(rec_state.AWAITING);
