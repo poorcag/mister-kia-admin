@@ -21,6 +21,7 @@ from typing import Any
 import sqlalchemy
 from sqlalchemy.orm import close_all_sessions
 from sqlalchemy.pool import NullPool
+from sqlalchemy.exc import IntegrityError
 
 import credentials
 from middleware import logger
@@ -170,7 +171,44 @@ def create_tables() -> None:
                 ");"
             )
         )
+        conn.execute(
+            sqlalchemy.text(
+                "CREATE TABLE IF NOT EXISTS active_users"
+                "( user_id SERIAL NOT NULL, "
+                "username VARCHAR(128) NOT NULL, "
+                "tokens INTEGER NOT NULL DEFAULT 0, "
+                "PRIMARY KEY (user_id), "
+                "UNIQUE (username)"
+                ");"
+            )
+        )
 
+
+def authenticate_user(uid: str):
+    # Check if the user already exists in the active_users table
+    with db.connect() as conn:
+        user_exists = conn.execute(
+            sqlalchemy.text(
+                "SELECT COUNT(*) FROM active_users WHERE username=:username"
+            ),
+            parameters={"username": uid},
+        ).scalar()
+
+    # If the user doesn't exist, insert a new row with an initial token supply
+    if not user_exists:
+        try:
+            with db.begin() as conn:
+                conn.execute(
+                    sqlalchemy.text(
+                        "INSERT INTO active_users (username, tokens) VALUES (:username, :tokens)"
+                    ),
+                    parameters={"username": uid, "tokens": 100}  # Set an initial token supply
+                )
+        except IntegrityError:
+            # Handle potential concurrent insertions by catching IntegrityError
+            # This can happen if another process/thread inserted the same username
+            # between our SELECT and INSERT queries
+            pass
 
 def get_index_context() -> dict[str, Any]:
     """Query PostgreSQL database and transform data for UI.
@@ -207,6 +245,47 @@ def get_index_context() -> dict[str, Any]:
         "recent_votes": votes,
         "cats_count": cats_count,
     }
+
+def add_tokens_to_user(uid: str, amount: int) -> bool:
+    """Add tokens to a user's token balance."""
+    with db.begin() as conn:
+        # Get the current token count for the user
+        current_tokens = conn.execute(
+            sqlalchemy.text(
+                "SELECT tokens FROM active_users WHERE username=:username"
+            ),
+            parameters={"username": uid},
+        ).scalar()
+
+        if current_tokens is not None:
+            # Calculate the new token count
+            new_tokens = current_tokens + amount
+
+            # Update the user's token count in the database
+            conn.execute(
+                sqlalchemy.text(
+                    "UPDATE active_users SET tokens=:new_tokens WHERE username=:username"
+                ),
+                parameters={"new_tokens": new_tokens, "username": uid},
+            )
+        else:
+            # User not found in active_users table
+            raise ValueError(f"User '{uid}' not found.")
+
+def get_tokens_for_uid(uid: str) -> int:
+    """Fetch the token count for a given user."""
+    with db.connect() as conn:
+        result = conn.execute(
+            sqlalchemy.text(
+                "SELECT tokens FROM active_users WHERE username=:username"
+            ),
+            parameters={"username": uid},
+        )
+        row = result.fetchone()
+        if row:
+            return row[0]
+        else:
+            return None  # User not found in active_users table
 
 
 def save_vote(team: str, uid: str, time_cast: datetime.datetime) -> None:

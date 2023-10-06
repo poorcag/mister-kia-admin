@@ -66,6 +66,36 @@ def index() -> str:
     context["lead_team"] = lead_team
     return render_template("index.html", **context)
 
+@app.route("/auth", methods=["GET"])
+@jwt_authenticated
+def logged_in() -> Response:
+    """Renders default UI with votes from database."""
+    context = database.get_index_context()
+    cats_count = context["cats_count"]
+    dogs_count = context["dogs_count"]
+
+    lead_team = ""
+    vote_diff = 0
+    leader_message = ""
+    if cats_count != dogs_count:
+        if cats_count > dogs_count:
+            lead_team = "CATS"
+            vote_diff = cats_count - dogs_count
+        else:
+            lead_team = "DOGS"
+            vote_diff = dogs_count - cats_count
+        leader_message = (
+            f"{lead_team} are winning by {vote_diff} vote{'s' if vote_diff > 1 else ''}"
+        )
+    else:
+        leader_message = "CATS and DOGS are evenly matched!"
+
+    context["leader_message"] = leader_message
+    context["lead_team"] = lead_team
+    context["leader_message"] = database.get_tokens_for_uid(request.uid)
+
+    return render_template("index.html", **context)
+
 @app.route("/ask/", methods=["POST"])
 @jwt_authenticated
 def ask_question() -> Response:
@@ -108,6 +138,7 @@ def save_vote() -> Response:
     # Get the team and time the vote was cast.
     team = request.form["team"]
     uid = request.uid
+    database.authenticate_user(uid)
     time_cast = datetime.datetime.now(tz=datetime.timezone.utc)
     # Verify that the team is one of the allowed options
     if team != "CATS" and team != "DOGS":
@@ -116,6 +147,13 @@ def save_vote() -> Response:
 
     try:
         database.save_vote(team=team, uid=uid, time_cast=time_cast)
+
+        if team == "CATS":
+            database.add_tokens_to_user(uid, 1)
+        else:
+            database.add_tokens_to_user(uid, -1)
+
+        tokens = database.get_tokens_for_uid(uid)
     except Exception as e:
         # If something goes wrong, handle the error in this section. This might
         # involve retrying or adjusting parameters depending on the situation.
@@ -128,7 +166,7 @@ def save_vote() -> Response:
 
     return Response(
         status=200,
-        response=f"Vote successfully cast for '{team}' at time {time_cast}!",
+        response=f"User now has {tokens} tokens. Vote successfully cast for '{team}' at time {time_cast}!",
     )
 
 
