@@ -28,12 +28,15 @@ async function askMisterKnowitall() {
 
 function setButtonState(new_state) {
     if (new_state == rec_state.AWAITING) {
+        document.getElementById('askMisterKnowitall').textContent = "Click to ask"
         // TODO reset the page state to neutral
     }
     else if (new_state == rec_state.RECORDING) {
+        document.getElementById('askMisterKnowitall').textContent = "I'm listening"
         // TODO make page state recording
     }
     else if (new_state == rec_state.RESPONDING) {
+        document.getElementById('askMisterKnowitall').textContent = "Hmm.. let me think"
         // TODO make page state responding
     }
     cur_state = new_state

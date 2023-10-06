@@ -43,27 +43,10 @@ def create_table() -> None:
 def index() -> str:
     """Renders default UI with votes from database."""
     context = database.get_index_context()
-    cats_count = context["cats_count"]
-    dogs_count = context["dogs_count"]
 
-    lead_team = ""
-    vote_diff = 0
-    leader_message = ""
-    if cats_count != dogs_count:
-        if cats_count > dogs_count:
-            lead_team = "CATS"
-            vote_diff = cats_count - dogs_count
-        else:
-            lead_team = "DOGS"
-            vote_diff = dogs_count - cats_count
-        leader_message = (
-            f"{lead_team} are winning by {vote_diff} vote{'s' if vote_diff > 1 else ''}"
-        )
-    else:
-        leader_message = "CATS and DOGS are evenly matched!"
+    welcome_message = "Ask Mr. Know-It-All anything you'd like!"
 
-    context["leader_message"] = leader_message
-    context["lead_team"] = lead_team
+    context["welcome_message"] = welcome_message
     return render_template("index.html", **context)
 
 @app.route("/auth", methods=["GET"])
@@ -90,9 +73,9 @@ def logged_in() -> Response:
     else:
         leader_message = "CATS and DOGS are evenly matched!"
 
-    context["leader_message"] = leader_message
+    context["welcome_message"] = leader_message
     context["lead_team"] = lead_team
-    context["leader_message"] = database.get_tokens_for_uid(request.uid)
+    context["welcome_message"] = database.get_tokens_for_uid(request.uid)
 
     return render_template("index.html", **context)
 
