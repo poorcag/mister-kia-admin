@@ -81,10 +81,7 @@ def ask_question() -> Response:
 
     answer = answer_my_question(transcript, user_context)
 
-    # answer_audio = text_to_speech(answer)
-
-    with open("static/mp3/hmm,_let_me_think.mp3", 'rb') as f:
-        answer_audio = f.read()
+    answer_audio = text_to_speech(answer)
 
     logger.info(user_context)
     logger.info(answer)
