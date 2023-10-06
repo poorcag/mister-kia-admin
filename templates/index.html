@@ -35,6 +35,9 @@
       <ul class="left" id="nav-mobile">
         <button class="waves-effect waves-light btn" id="signInButton">Sign In with Google</button>
       </ul>
+      <ul class="right" id="nav-mobile">
+        <button class="waves-effect waves-light btn" id="tokensButton" style="display: none;">Add Tokens</button>
+      </ul>
     </div>
   </nav>
   <div class="section" id="form" style="display: none;">
@@ -81,6 +84,9 @@
     document.getElementById('signInButton').addEventListener("click", toggle);
     document.getElementById('askMisterKnowitall').addEventListener("click", function() {
       askMisterKnowitall();
+    })
+    document.getElementById('tokensButton').addEventListener("click", function() {
+      addTokens();
     })
   </script>
 </body>

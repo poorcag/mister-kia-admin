@@ -246,7 +246,7 @@ def get_index_context() -> dict[str, Any]:
         "cats_count": cats_count,
     }
 
-def add_tokens_to_user(uid: str, amount: int) -> bool:
+def add_tokens_to_user(uid: str, amount: int) -> int:
     """Add tokens to a user's token balance."""
     with db.begin() as conn:
         # Get the current token count for the user
@@ -268,6 +268,7 @@ def add_tokens_to_user(uid: str, amount: int) -> bool:
                 ),
                 parameters={"new_tokens": new_tokens, "username": uid},
             )
+            return new_tokens
         else:
             # User not found in active_users table
             raise ValueError(f"User '{uid}' not found.")

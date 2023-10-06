@@ -22,10 +22,12 @@ function initApp() {
       // User is signed in.
       document.getElementById('signInButton').innerText = 'Sign Out';
       document.getElementById('form').style.display = '';
+      document.getElementById('tokensButton').style.display = '';
     } else {
       // No user is signed in.
       document.getElementById('signInButton').innerText = 'Sign In with Google';
       document.getElementById('form').style.display = 'none';
+      document.getElementById('tokensButton').style.display = 'none';
     }
   });
 }
@@ -59,6 +61,30 @@ function signOut() {
       console.log(`Error during sign out: ${err.message}`);
       window.alert(`Sign out failed. Retry or check your browser logs.`);
     });
+}
+
+async function addTokens() {
+  if (firebase.auth().currentUser) {
+    try {
+      const token = await firebase.auth().currentUser.getIdToken();
+      const response = await fetch('/tokens/', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          Authorization: `Bearer ${token}`,
+        }
+      });
+      if (response.ok) {
+        const text = await response.text();
+        window.alert(text);
+      }
+    } catch (err) {
+      console.log(`Error when adding tokens: ${err}`);
+      window.alert('Something went wrong... Please try again!');
+    }
+  } else {
+    window.alert('User not signed in.');
+  }
 }
 
 // Toggle Sign in/out button

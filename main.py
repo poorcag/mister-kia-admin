@@ -131,6 +131,26 @@ def ask_question() -> Response:
         headers=response_header
     )
 
+@app.route("/tokens/", methods=["GET"])
+@jwt_authenticated
+def add_tokens() -> Response:
+    uid = request.uid
+    database.authenticate_user(uid)
+
+    try:
+        new_token_count = database.add_tokens_to_user(uid, 50)
+    except Exception as e:
+        logger.exception(e)
+        return Response(
+            status=500,
+            response="Unable to successfully cast vote! Please check the "
+            "application logs for more details.",
+        )
+    return Response(
+        status=200,
+        response=f"User now has {new_token_count} tokens!",
+    )
+
 @app.route("/", methods=["POST"])
 @jwt_authenticated
 def save_vote() -> Response:
@@ -149,11 +169,14 @@ def save_vote() -> Response:
         database.save_vote(team=team, uid=uid, time_cast=time_cast)
 
         if team == "CATS":
-            database.add_tokens_to_user(uid, 1)
+            new_count = database.add_tokens_to_user(uid, 1)
         else:
-            database.add_tokens_to_user(uid, -1)
+            new_count = database.add_tokens_to_user(uid, -1)
 
         tokens = database.get_tokens_for_uid(uid)
+
+        assert(new_count == tokens)
+
     except Exception as e:
         # If something goes wrong, handle the error in this section. This might
         # involve retrying or adjusting parameters depending on the situation.
