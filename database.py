@@ -184,7 +184,7 @@ def create_tables() -> None:
         )
 
 
-def authenticate_user(uid: str):
+def initialise_user_if_required(uid: str):
     # Check if the user already exists in the active_users table
     with db.connect() as conn:
         user_exists = conn.execute(

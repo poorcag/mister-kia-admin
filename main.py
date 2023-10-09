@@ -24,7 +24,13 @@ import database
 import middleware
 from middleware import jwt_authenticated, logger
 
-from parsing import transcribe_from_audio, check_auth_keys, answer_my_question, text_to_speech
+from parsing import (
+    transcribe_from_audio,
+    check_auth_keys,
+    answer_my_question,
+    text_to_speech,
+    sanitise_text
+)
 from costs import calculate_query_cost
 
 app = Flask(__name__, static_folder="static", static_url_path="")
@@ -48,36 +54,6 @@ def index() -> str:
     welcome_message = "Ask Mr. Know-It-All anything you'd like!"
 
     context["welcome_message"] = welcome_message
-    return render_template("index.html", **context)
-
-@app.route("/auth", methods=["GET"])
-@jwt_authenticated
-def logged_in() -> Response:
-    """Renders default UI with votes from database."""
-    context = database.get_index_context()
-    cats_count = context["cats_count"]
-    dogs_count = context["dogs_count"]
-
-    lead_team = ""
-    vote_diff = 0
-    leader_message = ""
-    if cats_count != dogs_count:
-        if cats_count > dogs_count:
-            lead_team = "CATS"
-            vote_diff = cats_count - dogs_count
-        else:
-            lead_team = "DOGS"
-            vote_diff = dogs_count - cats_count
-        leader_message = (
-            f"{lead_team} are winning by {vote_diff} vote{'s' if vote_diff > 1 else ''}"
-        )
-    else:
-        leader_message = "CATS and DOGS are evenly matched!"
-
-    context["welcome_message"] = leader_message
-    context["lead_team"] = lead_team
-    context["welcome_message"] = database.get_tokens_for_uid(request.uid)
-
     return render_template("index.html", **context)
 
 @app.route("/ask/", methods=["POST"])
@@ -104,22 +80,28 @@ def ask_question() -> Response:
     token_cost = calculate_query_cost(answer)
 
     try:
-        database.add_tokens_to_user(request.uid, -1 * token_cost)
+        new_tokens = database.add_tokens_to_user(request.uid, -1 * token_cost)
     except:
         return Response(status=500,
             response="Something went wrong! User not found!"
         )
 
-    answer_audio = text_to_speech(answer)
-
-    logger.info(user_context)
-    logger.info(answer)
+    try:
+        answer_audio = text_to_speech(answer)
+    except:
+        return Response(status=500,
+            response="Unable to perform text to speech"
+        )
+    
+    sanitised_answer = sanitise_text(answer)
 
     response_header = {
         "Content-Disposition": f"attachment; filename={audio_file.filename}",
         "filename": audio_file.filename,
         "transcription": transcript,
-        "answer": answer,
+        "cost": token_cost,
+        "tokens": new_tokens,
+        "answer": sanitised_answer,
         "file_size": str(len(answer_audio))
     }
 
@@ -130,11 +112,21 @@ def ask_question() -> Response:
         headers=response_header
     )
 
+@app.route("/initialise_user/", method=["GET"])
+@jwt_authenticated
+def init_user() -> Response:
+    try:
+        database.initialise_user_if_required(request.uid)
+    except:
+        return Response(status=500,
+                        response="Failed to initialise user")
+    return Response(status=200)
+
 @app.route("/tokens/", methods=["GET"])
 @jwt_authenticated
 def add_tokens() -> Response:
     uid = request.uid
-    database.authenticate_user(uid)
+    database.initialise_user_if_required(request.uid)
 
     try:
         new_token_count = database.add_tokens_to_user(uid, 50)
@@ -157,7 +149,7 @@ def save_vote() -> Response:
     # Get the team and time the vote was cast.
     team = request.form["team"]
     uid = request.uid
-    database.authenticate_user(uid)
+    database.initialise_user_if_required(request.uid)
     time_cast = datetime.datetime.now(tz=datetime.timezone.utc)
     # Verify that the team is one of the allowed options
     if team != "CATS" and team != "DOGS":

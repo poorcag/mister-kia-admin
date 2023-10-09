@@ -61,6 +61,12 @@ def answer_my_question(question_text, existing_context = []):
 
     return output_message
 
+def sanitise_text(text: str) -> str:
+    
+    output = text.replace('\n', '')
+
+    return output
+
 def text_to_speech(text):
 
     audio = generate(text, voice='Sam')
