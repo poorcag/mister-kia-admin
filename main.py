@@ -142,47 +142,6 @@ def add_tokens() -> Response:
         response=f"User now has {new_token_count} tokens!",
     )
 
-@app.route("/", methods=["POST"])
-@jwt_authenticated
-def save_vote() -> Response:
-    """Save a vote into the database."""
-    # Get the team and time the vote was cast.
-    team = request.form["team"]
-    uid = request.uid
-    database.initialise_user_if_required(request.uid)
-    time_cast = datetime.datetime.now(tz=datetime.timezone.utc)
-    # Verify that the team is one of the allowed options
-    if team != "CATS" and team != "DOGS":
-        logger.warning(f"Invalid team: {team}")
-        return Response(response="Invalid team specified.", status=400)
-
-    try:
-        database.save_vote(team=team, uid=uid, time_cast=time_cast)
-
-        if team == "CATS":
-            new_count = database.add_tokens_to_user(uid, 1)
-        else:
-            new_count = database.add_tokens_to_user(uid, -1)
-
-        tokens = database.get_tokens_for_uid(uid)
-
-        assert(new_count == tokens)
-
-    except Exception as e:
-        # If something goes wrong, handle the error in this section. This might
-        # involve retrying or adjusting parameters depending on the situation.
-        logger.exception(e)
-        return Response(
-            status=500,
-            response="Unable to successfully cast vote! Please check the "
-            "application logs for more details.",
-        )
-
-    return Response(
-        status=200,
-        response=f"User now has {tokens} tokens. Vote successfully cast for '{team}' at time {time_cast}!",
-    )
-
 
 # https://cloud.google.com/blog/topics/developers-practitioners/graceful-shutdowns-cloud-run-deep-dive
 # [START cloudrun_sigterm_handler]

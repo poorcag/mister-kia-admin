@@ -89,6 +89,12 @@ async function handleFinishRecording() {
         window.alert('Something went wrong... Please try again!');
         setButtonState(rec_state.AWAITING);
     }
+
+    await sleep(1500);
+    var idx = getRandomInt(2)
+    var audio_elem_id = "audio-thinking-" + idx
+    var thinkingAudio = document.getElementById(audio_elem_id);
+    thinkingAudio.play()
 }
 
 async function startRecording() {
