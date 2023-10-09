@@ -21,12 +21,12 @@ function initApp() {
     if (user) {
       // User is signed in.
       document.getElementById('signInButton').innerText = 'Sign Out';
-      document.getElementById('form').style.display = '';
+      document.getElementById('main').style.display = '';
       document.getElementById('tokensButton').style.display = '';
     } else {
       // No user is signed in.
       document.getElementById('signInButton').innerText = 'Sign In with Google';
-      document.getElementById('form').style.display = 'none';
+      document.getElementById('main').style.display = 'none';
       document.getElementById('tokensButton').style.display = 'none';
     }
   });
