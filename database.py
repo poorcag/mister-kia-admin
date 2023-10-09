@@ -246,6 +246,15 @@ def get_index_context() -> dict[str, Any]:
         "cats_count": cats_count,
     }
 
+def set_user_tokens(uid: str, amount: int) -> int:
+    with db.begin() as conn:
+        conn.execute(
+            sqlalchemy.text(
+                "UPDATE active_users SET tokens=:amount WHERE username=:username"
+            ),
+            parameters={"amount": amount, "username": uid},
+        )
+
 def add_tokens_to_user(uid: str, amount: int) -> int:
     """Add tokens to a user's token balance."""
     with db.begin() as conn:
@@ -259,7 +268,7 @@ def add_tokens_to_user(uid: str, amount: int) -> int:
 
         if current_tokens is not None:
             # Calculate the new token count
-            new_tokens = current_tokens + amount
+            new_tokens = max(current_tokens + amount, 0)
 
             # Update the user's token count in the database
             conn.execute(

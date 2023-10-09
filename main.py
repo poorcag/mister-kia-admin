@@ -25,6 +25,7 @@ import middleware
 from middleware import jwt_authenticated, logger
 
 from parsing import transcribe_from_audio, check_auth_keys, answer_my_question, text_to_speech
+from costs import calculate_query_cost
 
 app = Flask(__name__, static_folder="static", static_url_path="")
 
@@ -84,6 +85,12 @@ def logged_in() -> Response:
 def ask_question() -> Response:
     audio_file = request.files['audio_file']
 
+    user_tokens = database.get_tokens_for_uid(request.uid)
+    if user_tokens <= 0:
+        return Response(status=500,
+            response="Not enough tokens to ask a question!"
+        )
+
     logger.info(audio_file)
     logger.info(request.form)
 
@@ -93,6 +100,15 @@ def ask_question() -> Response:
     transcript = transcribe_from_audio(audio_file)
 
     answer = answer_my_question(transcript, user_context)
+
+    token_cost = calculate_query_cost(answer)
+
+    try:
+        database.add_tokens_to_user(request.uid, -1 * token_cost)
+    except:
+        return Response(status=500,
+            response="Something went wrong! User not found!"
+        )
 
     answer_audio = text_to_speech(answer)
 
