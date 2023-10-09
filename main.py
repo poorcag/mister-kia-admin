@@ -112,7 +112,7 @@ def ask_question() -> Response:
         headers=response_header
     )
 
-@app.route("/initialise_user/", method=["GET"])
+@app.route("/initialise_user/", methods=["GET"])
 @jwt_authenticated
 def init_user() -> Response:
     try:

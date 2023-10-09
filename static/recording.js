@@ -56,25 +56,34 @@ async function handleFinishRecording() {
 
     try {
         const token = await firebase.auth().currentUser.getIdToken();
-        const response = await fetch('/ask/', {
+        fetch('/ask/', {
             method: 'POST',
             headers: {
-                Authorization: `Bearer ${token}`,
+                Authorization: `Bearer ${token}`
             },
             body: formData,
-        });
-        if (response.ok) {
-            const blob = await response.blob();
-            const objectURL = URL.createObjectURL(blob);
-            const audioElement = new Audio();
-            audioElement.addEventListener("ended", () => { setButtonState(rec_state.AWAITING); }, false);
-            audioElement.src = objectURL;
-            audioElement.play();
-            console.log(audioElement)
-        }
-        else {
-            setButtonState(rec_state.AWAITING);
-        }
+        }).then(response => {
+            if (response.ok) {
+                chatContext.push(response.headers.get('transcription'))
+                chatContext.push(response.headers.get('answer'))
+                console.log(chatContext)
+                response.blob().then((blob) => {
+                    const objectURL = URL.createObjectURL(blob);
+                    const audioElement = new Audio();
+                    audioElement.addEventListener("ended", () => { setButtonState(rec_state.AWAITING); }, false);
+                    audioElement.src = objectURL;
+                    audioElement.play();
+                }).catch(error => {
+                    console.error("error from the blob:", error);
+                    setButtonState(rec_state.AWAITING);
+                })
+            }
+            else {
+                console.error("Bad response", response)
+                window.alert("Bad response from server")
+                setButtonState(rec_state.AWAITING);
+            }
+        })
     } catch (err) {
         console.log(`Error when finishing recording: ${err}`);
         window.alert('Something went wrong... Please try again!');
