@@ -124,6 +124,24 @@ def init_user() -> Response:
 
 @app.route("/tokens/", methods=["GET"])
 @jwt_authenticated
+def get_token_count() -> Response:
+    uid = request.uid
+    database.initialise_user_if_required(request.uid)
+    try:
+        token_count = database.get_tokens_for_uid(uid)
+    except Exception as e:
+        logger.exception(e)
+        return Response(
+            status=500,
+            response="Unable to fetch token count",
+        )
+    return Response(
+        status=200,
+        response=str(token_count),
+    )
+
+@app.route("/tokens/", methods=["PUT"])
+@jwt_authenticated
 def add_tokens() -> Response:
     uid = request.uid
     database.initialise_user_if_required(request.uid)
@@ -134,12 +152,11 @@ def add_tokens() -> Response:
         logger.exception(e)
         return Response(
             status=500,
-            response="Unable to successfully cast vote! Please check the "
-            "application logs for more details.",
+            response="Unable to add tokens to user",
         )
     return Response(
         status=200,
-        response=f"User now has {new_token_count} tokens!",
+        response=str(new_token_count),
     )
 
 

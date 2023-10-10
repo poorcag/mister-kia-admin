@@ -23,11 +23,14 @@ function initApp() {
       document.getElementById('signInButton').innerText = 'Sign Out';
       document.getElementById('main').style.display = '';
       document.getElementById('tokensButton').style.display = '';
+      document.getElementById('tokenUI').style.display = '';
+      getTokenCount()
     } else {
       // No user is signed in.
       document.getElementById('signInButton').innerText = 'Sign In with Google';
       document.getElementById('main').style.display = 'none';
       document.getElementById('tokensButton').style.display = 'none';
+      document.getElementById('tokenUI').style.display = 'none';
     }
   });
 }
@@ -44,7 +47,6 @@ function signIn() {
     .then(result => {
       // Returns the signed in user along with the provider's credential
       console.log(`${result.user.displayName} logged in.`);
-      window.alert(`Welcome ${result.user.displayName}!`);
     })
     .catch(err => {
       console.log(`Error during sign in: ${err.message}`);
@@ -63,7 +65,11 @@ function signOut() {
     });
 }
 
-async function addTokens() {
+function setUserTokens(count) {
+  document.getElementById('tokenCount').textContent = count
+}
+
+async function getTokenCount() {
   if (firebase.auth().currentUser) {
     try {
       const token = await firebase.auth().currentUser.getIdToken();
@@ -76,7 +82,31 @@ async function addTokens() {
       });
       if (response.ok) {
         const text = await response.text();
-        window.alert(text);
+        setUserTokens(text)
+      }
+    } catch (err) {
+      console.log(`Error when adding tokens: ${err}`);
+      window.alert('Something went wrong... Please try again!');
+    }
+  } else {
+    window.alert('User not signed in.');
+  }
+}
+
+async function addTokens() {
+  if (firebase.auth().currentUser) {
+    try {
+      const token = await firebase.auth().currentUser.getIdToken();
+      const response = await fetch('/tokens/', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          Authorization: `Bearer ${token}`,
+        }
+      });
+      if (response.ok) {
+        const text = await response.text();
+        setUserTokens(text)
       }
     } catch (err) {
       console.log(`Error when adding tokens: ${err}`);
