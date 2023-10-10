@@ -16,6 +16,10 @@ function getRandomInt(max) {
     return Math.floor(Math.random() * max);
 }
 
+function desiredResponseLength() {
+    return document.getElementById('messageLength').value
+}
+
 async function askMisterKnowitall() {
     if (cur_state == rec_state.AWAITING) {
         startRecording();
@@ -53,6 +57,7 @@ async function handleFinishRecording() {
     const formData = new FormData()
     formData.append("audio_file", blob)
     formData.append('chat_context', JSON.stringify(chatContext));
+    formData.append('response_length', desiredResponseLength())
 
     try {
         const token = await firebase.auth().currentUser.getIdToken();

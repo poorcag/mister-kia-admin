@@ -57,10 +57,18 @@
     <div id="tokenUI">
       <div class="container d-flex flex-wrap justify-content-center">
         <header class="py-3 mb-4 border-bottom">
-          <div class="d-flex align-items-center mb-3 mb-lg-0 me-lg-auto text-decoration-none">
-            <span class="fs-4">Tokens</span>
+          <div class="row py-3 mb-4">
+            <div class="col">
+              <span class="fs-4">Tokens</span>
+            </div>
+            <div class="col">
+              <span class="fs-4" id="tokenCount">---</span>
+            </div>
           </div>
-            <span class="fs-4" id="tokenCount">---</span>
+          <div>
+            <label for="messageLength" class="form-label">Response length</label>
+            <input type="range" class="form-range" min="10" max="100" id="messageLength">
+          </div>
         </header>
       </div>
     </div>

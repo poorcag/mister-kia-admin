@@ -29,7 +29,8 @@ from parsing import (
     check_auth_keys,
     answer_my_question,
     text_to_speech,
-    sanitise_text
+    sanitise_text,
+    validate_response_length
 )
 from costs import calculate_query_cost
 
@@ -73,9 +74,16 @@ def ask_question() -> Response:
     chat_context = request.form['chat_context']
     user_context = json.loads(chat_context)
 
+    try:
+        requested_response_length = int(request.form['response_length'])
+        clean_response_len = validate_response_length(requested_response_length)
+    except:
+        logger.info(f"Someone tried to give us {requested_response_length} as a response length")
+        clean_response_len = 20
+
     transcript = transcribe_from_audio(audio_file)
 
-    answer = answer_my_question(transcript, user_context)
+    answer = answer_my_question(transcript, user_context, clean_response_len)
 
     token_cost = calculate_query_cost(answer)
 

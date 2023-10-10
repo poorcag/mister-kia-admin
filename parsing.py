@@ -19,6 +19,9 @@ def check_auth_keys():
     else:
         logger.warning("openai api key not found")
 
+def validate_response_length(response_length_value: int):
+    return max(min(200, response_length_value), 5)
+
 def transcribe_from_audio(audio_file):
 
     contents = audio_file.read()
@@ -28,16 +31,13 @@ def transcribe_from_audio(audio_file):
 
     return body_text
 
-def answer_my_question(question_text, existing_context = []):
+def answer_my_question(question_text, existing_context = [], requested_response_length = 20):
 
     base_messages = [
-        {"role": "system", "content": "Your name is Mr. Know-it-all. You are a polite and helpful primary school teacher."},
-        {"role": "user", "content": "Excuse me, Mr. Know-it-all. I'd like to ask you a question. You answer should be simple, accurate, and 1 sentence maximum. Answer kindly and politely like you're talking to a primary school student."},
-        # {"role": "user", "content": "Answer my following question with 5 words maximum."},
+        {"role": "system", "content": "Your name is Mr. Know-it-all. You are a polite and helpful teacher."},
+        {"role": "user", "content": f"Excuse me, Mr. Know-it-all. I'd like to ask you a question. You answer should be simple, accurate, and {requested_response_length} words maximum. Answer kindly and politely like you're talking to a primary school student."},
         {"role": "assistant", "content": "Of course, ask me anything you'd like!"}
     ]
-
-    # TODO - allow user to modify how long of a response we give
 
     is_user_message = True
     for chat_item in existing_context[-10:]: # only use the 10 most recent messages as part of the context
