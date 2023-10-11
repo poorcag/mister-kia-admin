@@ -32,7 +32,7 @@ async function askMisterKnowitall() {
 
 function setButtonState(new_state) {
     if (new_state == rec_state.AWAITING) {
-        document.getElementById('askMisterKnowitall').textContent = "Click to ask"
+        document.getElementById('askMisterKnowitall').textContent = "Press to ask"
         // TODO reset the page state to neutral
     }
     else if (new_state == rec_state.RECORDING) {

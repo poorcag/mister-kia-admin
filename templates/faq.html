@@ -1,0 +1,104 @@
+{#
+# Copyright 2021 Google LLC. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#}
+<!doctype html>
+<html lang=en class="h-100" data-bs-theme="light">
+<head>
+    <meta charset="utf-8"> 
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#0d6efd">
+    <title>Mr. Know-it-all</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="/css/cover.css">
+    <link rel="stylesheet" href="/css/css@3.css">
+    
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧑‍🏫</text></svg>">
+</head>
+<body class="d-flex h-100 text-center text-bg-dark">
+<div class="cover-container d-flex w-100 h-100 p-3 mx-auto flex-column">
+    <header class="mb-auto">
+    <div>
+        <h3 class="float-md-start mb-0">Mr. Know-it-all</h3>
+        <nav class="nav nav-masthead justify-content-center float-md-end">
+        <a class="nav-link fw-bold py-1 px-0" href="/">Home</a>
+        <a class="nav-link fw-bold py-1 px-0 active" aria-current="page" href="#">FAQ</a>
+        </nav>
+    </div>
+    </header>
+
+    <main class="px-3" id="about">
+    <!--Section: FAQ-->
+    <section>
+        <h3 class="text-center mb-4 pb-2 text-primary fw-bold">FAQ</h3>
+        <p class="text-center mb-5">
+        Find the answers for the most frequently asked questions below
+        </p>
+
+        <div class="row">
+        <div class="col-md-6 col-lg-4 mb-4">
+            <h6 class="mb-3 text-primary"><i class="far fa-paper-plane text-primary pe-2"></i>Who is Mr. Know-it-all?</h6>
+            <p>
+            He's your friendly AI teacher! Here to answer all of your questions in a polite and friendly way.
+            </p>
+        </div>
+
+        <div class="col-md-6 col-lg-4 mb-4">
+            <h6 class="mb-3 text-primary"><i class="fas fa-pen-alt text-primary pe-2"></i>How does Mr. Know-it-all work?</h6>
+            <p>
+            We use OpenAI's whisper model to convert your voice to text, which is then used to prompt ChatGPT for an answer.
+            ElevenLabs is used to perform text-to-speech conversion to provide a friendly audible response.
+            </p>
+        </div>
+
+        <div class="col-md-6 col-lg-4 mb-4">
+            <h6 class="mb-3 text-primary"><i class="fas fa-user text-primary pe-2"></i>How accurate/safe are the responses?</h6>
+            <p>
+            Mr. Know-it-all has all the information of the GPT-3.5 Turbo enterprise model which has been fine tuned for dialog.
+            <a href="https://openai.com/blog/our-approach-to-ai-safety">You can read more about OpenAI's safety standards here</a>
+            </p>
+        </div>
+
+        <div class="col-md-6 col-lg-4 mb-4">
+            <h6 class="mb-3 text-primary"><i class="fas fa-rocket text-primary pe-2"></i>Are my questions private?</h6>
+            <p>
+            <strong>We don't collect, store, share, or sell data</strong> on the content of any questions asked. I believe user privacy is paramount.
+            </p>
+        </div>
+
+        <div class="col-md-6 col-lg-4 mb-4">
+            <h6 class="mb-3 text-primary"><i class="fas fa-home text-primary pe-2"></i>Is Mr. Know-it-all free?</h6>
+            For the time being, as the service is still being built and tested. I will eventually implement a paid token system
+            to support the site and allow it to remain operational.
+        </div>
+
+        <div class="col-md-6 col-lg-4 mb-4">
+            <h6 class="mb-3 text-primary"><i class="fas fa-book-open text-primary pe-2"></i>Why did you make Mr. Know-it-all?</h6>
+            <p>
+            My kids loved asking questions to Google Assistant but I found the answers were always poor quality.
+            I made this primarily for my kids to enjoy but have decided to open it up to more users.
+            </p>
+        </div>
+        </div>
+    </section>
+    <!--Section: FAQ-->
+    </main>
+
+    <footer class="mt-auto text-white-50">
+    <p>Built by Andrew Giannopoulos - <a href="mailto:alignedsoftware@gmail.com">Contact me - alignedsoftware@gmail.com</a></p>
+    </footer>
+</div>
+</body>
+</html>

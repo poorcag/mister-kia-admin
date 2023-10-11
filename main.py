@@ -57,6 +57,10 @@ def index() -> str:
     context["welcome_message"] = welcome_message
     return render_template("index.html", **context)
 
+@app.route("/faq/", methods=["GET"])
+def faq_page() -> str:
+    return render_template("faq.html")
+
 @app.route("/ask/", methods=["POST"])
 @jwt_authenticated
 def ask_question() -> Response:
