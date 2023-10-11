@@ -73,9 +73,6 @@ def ask_question() -> Response:
         # )
         logger.warning(f"user {request.uid} has a negative token balance {user_tokens}")
 
-    logger.info(audio_file)
-    logger.info(request.form)
-
     chat_context = request.form['chat_context']
     user_context = json.loads(chat_context)
 
@@ -83,7 +80,7 @@ def ask_question() -> Response:
         requested_response_length = int(request.form['response_length'])
         clean_response_len = validate_response_length(requested_response_length)
     except:
-        logger.info(f"Someone tried to give us {requested_response_length} as a response length")
+        logger.warning(f"Someone tried to give us {requested_response_length} as a response length")
         clean_response_len = 20
 
     transcript = transcribe_from_audio(audio_file)
@@ -92,16 +89,22 @@ def ask_question() -> Response:
 
     token_cost = calculate_query_cost(answer)
 
+    logger.info(f"{request.uid} - {token_cost}")
+
     try:
         new_tokens = database.add_tokens_to_user(request.uid, -1 * token_cost)
-    except:
+    except Exception as e:
+        logger.error(f"User not found error")
+        logger.exception(e)
         return Response(status=500,
             response="Something went wrong! User not found!"
         )
 
     try:
         answer_audio = text_to_speech(answer)
-    except:
+    except Exception as e:
+        logger.error("Failed to perform Text-to-speech conversion")
+        logger.exception(e)
         return Response(status=500,
             response="Unable to perform text to speech"
         )
@@ -130,7 +133,9 @@ def ask_question() -> Response:
 def init_user() -> Response:
     try:
         database.initialise_user_if_required(request.uid)
-    except:
+    except Exception as e:
+        logger.error("Failed to initialise user")
+        logger.exception(e)
         return Response(status=500,
                         response="Failed to initialise user")
     return Response(status=200)
