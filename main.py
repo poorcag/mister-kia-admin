@@ -68,9 +68,10 @@ def ask_question() -> Response:
 
     user_tokens = database.get_tokens_for_uid(request.uid)
     if user_tokens <= 0:
-        return Response(status=500,
-            response="Not enough tokens to ask a question!"
-        )
+        # return Response(status=500,
+        #     response="Not enough tokens to ask a question!"
+        # )
+        logger.warning(f"user {request.uid} has a negative token balance {user_tokens}")
 
     logger.info(audio_file)
     logger.info(request.form)
@@ -87,7 +88,7 @@ def ask_question() -> Response:
 
     transcript = transcribe_from_audio(audio_file)
 
-    answer = answer_my_question(transcript, user_context, clean_response_len)
+    answer = answer_my_question(transcript, user_context)
 
     token_cost = calculate_query_cost(answer)
 
