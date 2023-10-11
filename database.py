@@ -268,7 +268,8 @@ def add_tokens_to_user(uid: str, amount: int) -> int:
 
         if current_tokens is not None:
             # Calculate the new token count
-            new_tokens = max(current_tokens + amount, 0)
+            # new_tokens = max(current_tokens + amount, 0)
+            new_tokens = current_tokens + amount
 
             # Update the user's token count in the database
             conn.execute(
