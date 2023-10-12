@@ -22,6 +22,7 @@ function initApp() {
       // User is signed in.
       document.getElementById('signInButton').innerText = 'Sign Out';
       document.getElementById('main').style.display = '';
+      document.getElementById('cover').style.display = 'none';
       // document.getElementById('tokensButton').style.display = '';
       // document.getElementById('tokenUI').style.display = '';
       getTokenCount()
@@ -29,6 +30,7 @@ function initApp() {
       // No user is signed in.
       document.getElementById('signInButton').innerText = 'Sign In with Google';
       document.getElementById('main').style.display = 'none';
+      document.getElementById('cover').style.display = '';
       // document.getElementById('tokensButton').style.display = 'none';
       // document.getElementById('tokenUI').style.display = 'none';
     }
